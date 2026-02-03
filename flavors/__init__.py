@@ -1,5 +1,8 @@
 from .python_flavor import PythonAnalyzer
 from .cpp_flavor import CppAnalyzer
+from .go_flavor import GoAnalyzer
+from .java_flavor import JavaAnalyzer
+from .csharp_flavor import CsharpAnalyzer
 
 # 注册支持的语言和后缀
 REGISTRY = {
@@ -8,8 +11,20 @@ REGISTRY = {
         'class': PythonAnalyzer
     },
     'cpp': {
-        'extensions': ['.cpp', '.cc', '.c', '.h', '.hpp'],
+        'extensions': ['.cpp', '.cc', '.c', '.cxx', '.h', '.hpp'],
         'class': CppAnalyzer
+    },
+    'go': {
+        'extensions': ['.go'],
+        'class': GoAnalyzer
+    },
+    'java': {
+        'extensions': ['.java'],
+        'class': JavaAnalyzer
+    },
+    'csharp': {
+        'extensions': ['.cs'],
+        'class': CsharpAnalyzer
     }
 }
 
