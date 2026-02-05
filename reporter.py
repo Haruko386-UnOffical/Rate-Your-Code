@@ -16,13 +16,13 @@ class MarkdownReporter:
         overall_rank = self._get_rank(avg_score)
         flavor_text = self._get_flavor_text(avg_score)
         
-        # 按分数从低到高排序 (关注需要改进的地方)
+        # 按分数从低到高排序 
         sorted_results = sorted(results, key=lambda x: x.score)
 
         # 2. 构建 Markdown 内容
         md = []
         
-        # --- 头部信息 ---
+        #  头部信息 
         md.append(f"# 🍷 Code Sommelier 品鉴报告")
         md.append(f"> **生成时间**: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         md.append(f"")
@@ -33,14 +33,14 @@ class MarkdownReporter:
         md.append(f"- **样本数量**: {len(results)} 个文件")
         md.append(f"")
 
-        # --- 项目结构 ---
+        #  项目结构
         md.append(f"## 2. 葡萄园地图 (Vineyard Map)")
         md.append(f"```text")
         md.append(file_tree_str if file_tree_str else "(空目录)")
         md.append(f"```")
         md.append(f"")
 
-        # --- 详细评分表 ---
+        #  详细评分表 
         md.append(f"## 3. 详细风味分析 (Detailed Notes)")
         md.append(f"| 文件名 | 语言 | 得分 | 等级 | 状态 |")
         md.append(f"| :--- | :---: | :---: | :---: | :---: |")
@@ -55,7 +55,7 @@ class MarkdownReporter:
         
         md.append(f"")
 
-        # --- 改进建议 (带分类图标) ---
+        # 改进建议
         md.append(f"## 4. 酿造师建议 (Winemaker's Suggestions)")
         
         has_issues = False
@@ -73,7 +73,7 @@ class MarkdownReporter:
         if not has_issues:
             md.append(f"✨ 完美年份！这批代码口感纯净，结构平衡，无需额外的修饰。")
 
-        # --- 底部建议 ---
+        # 底部建议 
         md.append(f"---")
         md.append(f"**优化指南**: {self._get_advice(avg_score)}")
 
@@ -117,7 +117,7 @@ class MarkdownReporter:
         return "🛑"
 
     def _get_issue_category_icon(self, issue_text: str) -> str:
-        """根据问题文本自动匹配图标 (仿 Go 代码逻辑)"""
+        """根据问题文本自动匹配图标"""
         text = issue_text.lower()
         if any(x in text for x in ["复杂度", "complexity", "纠结", "迷宫", "逻辑"]):
             return "🔄" # 复杂度

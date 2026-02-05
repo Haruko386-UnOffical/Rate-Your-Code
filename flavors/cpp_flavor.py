@@ -13,7 +13,7 @@ class CppAnalyzer(BaseAnalyzer):
         issues = []
         score = 100.0
         
-        # --- 1. 注释覆盖率 (去除注释后计算) ---
+        #  1. 注释覆盖率 
         # 简单正则去除 // 和 /* */
         def remove_comments(text):
             pattern = r"(\".*?\"|\'.*?\')|(/\*.*?\*/|//[^\r\n]*$)"
@@ -38,19 +38,18 @@ class CppAnalyzer(BaseAnalyzer):
             score -= 10
             issues.append(f"🍷 余味干涩: 注释率仅 {ratio*100:.1f}%")
 
-        # --- 2. 复杂度与嵌套分析 (Token 扫描) ---
+        #  2. 复杂度与嵌套分析
         # 统计关键字
         keywords = re.findall(r'\b(if|for|while|catch|case|\|\||&&)\b', clean_code)
         complexity_points = len(keywords)
         
-        # 密度检测 (平均每行多少逻辑判断)
+        # 密度检测
         density = complexity_points / clean_lines_count if clean_lines_count > 0 else 0
         if density > 0.2: # 每5行就有1个逻辑跳转
              score -= 20
              issues.append(f"🕸️ 整体结构纠结: 逻辑密度过高 ({density:.2f})")
 
-        # --- 3. 函数长度与嵌套 (基于花括号的简单状态机) ---
-        # 这是一个简化版解析器，尝试找到函数边界
+        #  3. 函数长度与嵌套
         brace_level = 0
         in_function = False
         func_start_line = 0
@@ -80,14 +79,12 @@ class CppAnalyzer(BaseAnalyzer):
                     # 命名检查 (Go logic: C++ func usually Pascal or Camel)
                     func_name = match.group(1)
                     if not re.match(r'^[a-z]+[a-zA-Z0-9]*$', func_name) and not re.match(r'^[A-Z][a-zA-Z0-9]*$', func_name):
-                         # C++ 命名风格多变，不轻易扣分，除非有下划线且又是驼峰混用
                          pass 
 
             if in_function:
                 current_func_lines += 1
                 
-                # 嵌套深度估算 (当前花括号层级)
-                # 注意：这里 brace_level 是基于文件的，需要减去函数开始时的 level (通常是0或1)
+                # 嵌套深度估算
                 if brace_level > 5:
                     max_nesting = max(max_nesting, brace_level)
             
@@ -110,14 +107,14 @@ class CppAnalyzer(BaseAnalyzer):
                     score -= 3
                     issues.append(f"🏗️ 嵌套过深: 函数 (约行{func_start_line}) 达到 {max_nesting} 层")
 
-        # --- 4. 命名规范 (类名) ---
+        #  4. 命名规范 (类名) 
         class_decls = re.findall(r'class\s+([a-zA-Z0-9_]+)', clean_code)
         for c in class_decls:
             if not c[0].isupper():
                 score -= 2
                 issues.append(f"🎨 类名缺乏威严: '{c}' 建议大写开头 (PascalCase)")
 
-        # --- 5. 宏定义滥用检测 ---
+        #  5. 宏定义滥用检测 
         macros = len(re.findall(r'#define\s+', content))
         if macros > 20:
              score -= 5

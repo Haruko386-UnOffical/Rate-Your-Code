@@ -4,7 +4,6 @@ from analyzer import CodeSommelier
 from reporter import MarkdownReporter
 
 def main():
-    # 1. 定义命令行参数
     parser = argparse.ArgumentParser(description="Code Sommelier - 代码优雅度评分工具 🍷")
     
     parser.add_argument(
@@ -24,17 +23,15 @@ def main():
 
     args = parser.parse_args()
 
-    # 2. 初始化品鉴师
     sommelier = CodeSommelier(args.project_path, args.language)
 
-    # 3. 开始品鉴
     success, message = sommelier.taste()
     
     if not success:
         print(message)
         sys.exit(1)
 
-    # 4. 生成报告
+    # 生成报告
     reporter = MarkdownReporter()
     reporter.generate(sommelier.results, sommelier.get_file_tree_str())
 

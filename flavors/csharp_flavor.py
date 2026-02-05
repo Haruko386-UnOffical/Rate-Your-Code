@@ -13,8 +13,7 @@ class CsharpAnalyzer(BaseAnalyzer):
         score = 100.0
         lines = content.splitlines()
 
-        # --- 1. 坏味道检测 ---
-        # 滥用 #region
+        #  1. 滥用 #region
         regions = content.count("#region")
         if regions > 3:
             score -= 5
@@ -25,10 +24,7 @@ class CsharpAnalyzer(BaseAnalyzer):
             score -= 5
             issues.append(f"🗑️ 杂质残留: 包含 Console.Write 输出")
 
-        # --- 2. 命名规范 (C# 特色) ---
-        # 方法名应该是 PascalCase (大写开头)
-        # 匹配: public void method() 或 private int calculate()
-        # 排除构造函数(和类名一样)
+        #  2. 命名规范
         method_pattern = re.compile(r'\b(?:public|private|protected|internal)\s+(?:static\s+)?(?:[\w<>[\]]+\s+)([a-z][a-zA-Z0-9_]*)\s*\(', re.MULTILINE)
         
         bad_methods = []
@@ -51,14 +47,14 @@ class CsharpAnalyzer(BaseAnalyzer):
                 score -= 2
                 issues.append(f"🏷️ 标签错误: 接口 '{name}' 建议以 'I' 开头 (如 IService)")
 
-        # --- 3. 结构分析 ---
+        #  3. 结构分析 
         # C# 的 Lambda 和 LINQ 可能会导致单行极长
         long_lines = [i+1 for i, l in enumerate(lines) if len(l) > 120]
         if len(long_lines) > 5:
             score -= 5
             issues.append(f"📏 行宽溢出: {len(long_lines)} 行代码超过 120 字符 (建议换行)")
 
-        # 嵌套深度 (简单的大括号栈)
+        # 嵌套深度
         max_nesting = 0
         depth = 0
         for line in lines:

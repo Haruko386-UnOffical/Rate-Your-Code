@@ -17,7 +17,7 @@ class PythonAnalyzer(BaseAnalyzer):
         issues = []
         score = 100.0
         
-        # --- 1. 注释覆盖率 (Comment Ratio) ---
+        #  1. 注释覆盖率 (Comment Ratio) 
         # 使用 tokenize 准确区分注释和代码
         total_lines = 0
         comment_lines = 0
@@ -40,13 +40,13 @@ class PythonAnalyzer(BaseAnalyzer):
             score -= 10
             issues.append(f"🍷 余味不足: 注释率仅为 {ratio*100:.1f}% (建议 > 10%)")
 
-        # --- AST 解析 ---
+        #  AST 解析 
         try:
             tree = ast.parse(content_str)
         except SyntaxError as e:
             return AnalysisResult(file_path.name, "Python", 0, "D", [f"❌ 语法错误: {e}"])
 
-        # --- 2. 函数分析 (长度、复杂度、参数、嵌套) ---
+        #  2. 函数分析 (长度、复杂度、参数、嵌套) 
         func_count = 0
         total_complexity = 0
         structure_fingerprints = defaultdict(list) # 用于查重
@@ -121,13 +121,13 @@ class PythonAnalyzer(BaseAnalyzer):
                     sig = "-".join(fingerprint)
                     structure_fingerprints[sig].append(func_name)
 
-        # --- 3. 重复代码检测 (Duplication) ---
+        #  3. 重复代码检测 (Duplication) 
         for sig, funcs in structure_fingerprints.items():
             if len(funcs) > 1:
                 score -= 5 * (len(funcs) - 1)
                 issues.append(f"👯‍♀️ 疑似复制粘贴: {', '.join(funcs)} 逻辑结构完全一致")
 
-        # --- 4. 类命名规范 ---
+        #  4. 类命名规范 
         for node in ast.walk(tree):
             if isinstance(node, ast.ClassDef):
                 # Class 应该是 PascalCase
@@ -135,7 +135,7 @@ class PythonAnalyzer(BaseAnalyzer):
                     score -= 1
                     issues.append(f"🎨 类名色泽不佳: '{node.name}' 建议使用 PascalCase")
 
-        # --- 5. 错误处理检测 (Error Handling) ---
+        #  5. 错误处理检测 (Error Handling) 
         # Python 特有: try: ... except: pass
         for node in ast.walk(tree):
             if isinstance(node, ast.ExceptHandler):

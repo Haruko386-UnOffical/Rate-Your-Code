@@ -40,7 +40,7 @@ REGISTRY = {
         'class': VueAnalyzer
     },
     'react': {
-        'extensions': ['.jsx', '.tsx'], # .tsx 也可以被视为 React
+        'extensions': ['.jsx', '.tsx'],
         'class': ReactAnalyzer
     },
     'html': {
@@ -52,7 +52,7 @@ REGISTRY = {
         'class': CssAnalyzer
     },
     'javascript': {
-        'extensions': ['.js', '.mjs', '.ts'], # .ts 暂时用 JS 分析器或复用 React 分析器
+        'extensions': ['.js', '.mjs', '.ts'],
         'class': JsAnalyzer
     }
 }

@@ -13,7 +13,7 @@ class GoAnalyzer(BaseAnalyzer):
         score = 100.0
         lines = content.splitlines()
 
-        # --- 1. 注释覆盖率 (Go 社区非常看重 Godoc) ---
+        #  1. 注释覆盖率
         # 简单去除字符串干扰，统计 // 和 /*
         clean_code = re.sub(r'(".*?"|`.*?`)', '', content, flags=re.DOTALL)
         comment_matches = re.findall(r'(//[^\n]*|/\*.*?\*/)', content, flags=re.DOTALL)
@@ -27,9 +27,7 @@ class GoAnalyzer(BaseAnalyzer):
             score -= 10
             issues.append(f"🍷 缺乏陈酿说明: 注释率仅 {ratio*100:.1f}% (Go 标准建议 > 15%)")
 
-        # --- 2. 导出函数文档检查 (Public Func) ---
-        # Go 规则: 大写开头的函数是导出的，应该有注释
-        # 匹配: func (r Receiver) FuncName 或 func FuncName
+        #  2. 导出函数文档检查
         func_pattern = re.compile(r'^func\s+(?:\([^)]+\)\s+)?([A-Z][a-zA-Z0-9_]*)', re.MULTILINE)
         
         for i, line in enumerate(lines):
@@ -41,7 +39,7 @@ class GoAnalyzer(BaseAnalyzer):
                     score -= 2
                     issues.append(f"📝 标签缺失: 导出函数 '{func_name}' 缺少文档注释")
 
-        # --- 3. 复杂度分析 (if err != nil 地狱) ---
+        #  3. 复杂度分析 (if err != nil, switch, for) 
         keywords = re.findall(r'\b(if|for|switch|select|case|\|\||&&)\b', clean_code)
         complexity = len(keywords)
         density = complexity / total_lines if total_lines > 0 else 0
@@ -50,20 +48,20 @@ class GoAnalyzer(BaseAnalyzer):
              score -= 15
              issues.append(f"🕸️ 逻辑纠结: 控制流密度过高 ({density:.2f})")
 
-        # --- 4. 命名规范 (Go 偏好短命名，但不能太短) ---
+        #  4. 命名规范
         # 检查是否有 interface{} 滥用 (Empty Interface)
         empty_interfaces = len(re.findall(r'interface\{\}', clean_code))
         if empty_interfaces > 5:
             score -= 5
             issues.append(f"⚠️ 类型模糊: 过度使用 interface{{}} ({empty_interfaces}处)，建议定义具体接口")
 
-        # 检查蛇形命名 (Go 严格要求 CamelCase)
+        # 检查蛇形命名
         snake_vars = re.findall(r'\bvar\s+([a-z]+_[a-z]+)\s+', clean_code)
         for v in snake_vars:
             score -= 2
             issues.append(f"🎨 色泽偏差: 变量 '{v}' 使用了蛇形命名，Go 推荐 CamelCase")
 
-        # --- 5. 函数长度 ---
+        #  5. 函数长度 
         # 简单括号计数法
         current_len = 0
         brace_balance = 0

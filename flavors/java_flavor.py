@@ -12,9 +12,8 @@ class JavaAnalyzer(BaseAnalyzer):
         issues = []
         score = 100.0
         lines = content.splitlines()
-
-        # --- 1. 坏味道检测 (Bad Smells) ---
-        # 调试代码残留
+ 
+        # 1. 调试代码残留
         if "System.out.println" in content:
             count = content.count("System.out.println")
             score -= 2 * count
@@ -31,21 +30,20 @@ class JavaAnalyzer(BaseAnalyzer):
             score -= 5
             issues.append(f"⚠️ 处理粗糙: 使用了 printStackTrace()，生产环境会导致日志混乱")
 
-        # --- 2. 命名规范 ---
+        #  2. 命名规范 
         # 类名必须大写开头
         class_decls = re.findall(r'\bclass\s+([a-z][a-zA-Z0-9_]*)', content)
         for c in class_decls:
             score -= 5
             issues.append(f"🎨 类名色泽黯淡: '{c}' 必须使用 PascalCase (大写开头)")
             
-        # 常量建议大写蛇形 (static final)
-        # 这是一个简单的 heuristic
+        # 常量建议大写蛇形
         bad_constants = re.findall(r'static\s+final\s+\w+\s+([a-z][a-zA-Z0-9]*)', content)
         for c in bad_constants:
             score -= 2
             issues.append(f"🎨 常量命名不当: '{c}' 建议使用 UPPER_SNAKE_CASE")
 
-        # --- 3. 复杂度分析 ---
+        #  3. 复杂度分析 
         # Java 很容易写出嵌套很深的 if/else
         clean_code = re.sub(r'//.*|/\*[\s\S]*?\*/', '', content)
         keywords = re.findall(r'\b(if|for|while|switch|case|catch)\b', clean_code)
@@ -55,7 +53,7 @@ class JavaAnalyzer(BaseAnalyzer):
              score -= 10
              issues.append(f"🕸️ 结构纠结: 代码复杂度密度高 ({complexity_density:.2f})")
 
-        # --- 4. 长度检查 ---
+        #  4. 长度检查 
         if len(lines) > 500:
             score -= 5
             issues.append(f"📏 瓶身过大: 文件包含 {len(lines)} 行，违背了单一职责原则")
